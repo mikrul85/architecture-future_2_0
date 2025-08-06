@@ -1,0 +1,42 @@
+@startuml
+!include <c4/C4_Container>
+
+Person(employee, "Сотрудник", "Сотрудник компании с доступом к аналитике")
+
+System_Boundary(company, "Компания 'Будущее 2.0'") {
+    Container(portal, "Портал самообслуживания", "React/TypeScript", "Генератор отчётов + Power BI")
+    Container(api_gateway, "API Gateway", "Kong/Spring Cloud Gateway", "Единая точка входа для API")
+    
+    Container_Boundary(data_platform, "Data Platform") {
+        Container(lakehouse, "Data Lakehouse", "Delta Lake", "Raw/Cleaned/Feature Zones")
+        Container(dwh, "DWH (Legacy)", "Microsoft SQL Server", "Исторические данные")
+        Container(spark, "Spark Engine", "Apache Spark", "Обработка данных")
+    }
+
+    Container(fintech, "Финтех-сервисы", "Golang/Java", "Платежи и транзакции")
+    Container(ai_services, "ИИ-сервисы", "Python", "ML-модели")
+    Container(clinics_ui, "Интерфейс клиник", "React", "Веб-интерфейс для врачей")
+    Container(legacy_ui, "Legacy UI", "Power Builder", "Старый интерфейс операторов")
+    
+    Container(kafka, "Kafka", "Apache Kafka", "Потоковая шина событий")
+}
+
+' Связи
+Rel(employee, portal, "Создание отчётов", "HTTPS")
+Rel(portal, api_gateway, "Запросы данных", "HTTPS")
+Rel(api_gateway, lakehouse, "SQL-запросы", "gRPC")
+Rel(api_gateway, dwh, "Запросы к легаси-данным", "JDBC")
+Rel(dwh, lakehouse, "Пакетная миграция", "Spark")
+
+' Потоковые события через Kafka
+Rel(clinics_ui, kafka, "События пациентов", "Avro")
+Rel(fintech, kafka, "Платежные транзакции", "Avro")
+Rel(kafka, lakehouse, "Загрузка в реальном времени", "Spark Streaming")
+Rel(ai_services, kafka, "ML-события", "Protobuf")
+
+' Legacy-системы
+Rel(legacy_ui, dwh, "Работа с данными", "ODBC")
+
+' Внутренние связи Data Platform
+Rel(spark, lakehouse, "ETL/Feature Engineering", "Delta")
+@enduml
