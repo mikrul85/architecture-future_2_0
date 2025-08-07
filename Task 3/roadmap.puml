@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+
+rectangle "Этап 1 (0-3 мес.)" as stage1 {
+  rectangle "Миграция DWH → Lakehouse" as m1
+  rectangle "Внедрение Kafka" as m2
+}
+
+rectangle "Этап 2 (3-6 мес.)" as stage2 {
+  rectangle "Автоматизация ETL (Spark)" as m3
+  rectangle "Замена Power Builder" as m4
+}
+
+rectangle "Этап 3 (6-12 мес.)" as stage3 {
+  rectangle "Интеграция новых бизнесов" as m5
+  rectangle "Оптимизация ML-инфраструктуры" as m6
+}
+
+' Связи этапов
+stage1 --> stage2 : "Требуется завершение\nмиграции данных"
+stage2 --> stage3 : "Готовность API Gateway\nи Lakehouse"
+
+' Ответственные
+note top of m1
+  **Команда:** Data Engineering
+  **Ресурсы:** Spark-кластер
+end note
+
+note top of m2
+  **Команда:** DevOps
+  **Ресурсы:** Kafka-кластер
+end note
+
+note top of m3
+  **Команда:** DataOps
+  **Ресурсы:** dbt, Airflow
+end note
+
+note top of m4
+  **Команда:** Frontend
+  **Ресурсы:** React-разработчики
+end note
+@enduml
