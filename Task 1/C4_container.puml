@@ -38,5 +38,5 @@ Rel(ai_services, kafka, "ML-события", "Protobuf")
 Rel(legacy_ui, dwh, "Работа с данными", "ODBC")
 
 ' Внутренние связи Data Platform
-Rel(spark, lakehouse, "ETL/Feature Engineering", "Delta")
+Rel(spark, lakehouse, "ETL/Feature Engineering", "Delta Lake")
 @enduml

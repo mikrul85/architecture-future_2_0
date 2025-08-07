@@ -1,0 +1,59 @@
+@startuml
+left to right direction
+
+rectangle "Медицинский домен" {
+  component "Клиники" as clinics
+  component "ИИ-сервисы" as ai
+}
+
+rectangle "Финтех-домен" {
+  component "Финтех-сервисы" as fintech
+}
+
+rectangle "Аналитический домен" {
+  component "Портал самообслуживания" as portal
+  component "Power BI" as bi
+}
+
+rectangle "Интеграция" {
+  component "Kafka" as kafka
+  component "API Gateway" as gateway
+}
+
+rectangle "Легаси" <<legacy>> {
+  component "Power Builder" as powerbuilder
+  database "DWH (Legacy)" as dwh
+}
+
+' === Единый Data Lakehouse ===
+database "Data Lakehouse (Delta Lake)" as lakehouse {
+  database "Мед.данные" as medical_zone
+  database "Фин.данные" as finance_zone
+  database "Аналитика" as analytics_zone
+}
+
+' === Потоки данных ===
+clinics --> kafka : События пациентов
+fintech --> kafka : События платежей
+kafka --> medical_zone : Потоковая загрузка
+kafka --> finance_zone : Потоковая загрузка
+
+
+gateway --> fintech : Финансовые API (/finance/*)
+gateway --> ai : Мед. API (/medical/*)
+gateway --> portal : Аналитика (/analytics/*)
+
+medical_zone --> ai : Обучение моделей
+ai --> medical_zone : Прогнозы
+dwh --> lakehouse : Пакетная миграция
+analytics_zone --> bi : Дашборды
+powerbuilder --> dwh : Работа с данными
+
+' === Поясняющая нотация ===
+note top of lakehouse
+  **Единое хранилище Data Lakehouse**
+  — Логические зоны для каждого домена
+  — Общие метаданные и управление
+  — ACID-транзакции (Delta Lake)
+end note
+@enduml
